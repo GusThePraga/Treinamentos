@@ -1,0 +1,96 @@
+#Algoritmo de cadastro de informações com manipulação dos dados, ainda em desenvolvimento. ( PyCharm, DB Browser )
+
+import sqlite3
+import matplotlib.pyplot as plt
+import sys
+from pandas import DataFrame
+
+conn = sqlite3.connect('bancodedados.db')
+c = conn.cursor()
+
+
+def create_table():
+    c.execute("CREATE TABLE IF NOT EXISTS alunos(matricula INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, nome TEXT, "
+              "nota_1 INTEGER, nota_2 INTEGER, nota_3 INTEGER, nota_4 INTEGER, media INTEGER)")
+
+
+def insert_values():
+    c.execute("INSERT INTO alunos(nome, nota_1, nota_2, nota_3, nota_4, media) VALUES (?, ?, ?, ?, ?, ?)",
+              (aluno, n1, n2, n3, n4, nmed))
+    conn.commit()
+
+
+def erase_table():
+    c.execute("DROP TABLE alunos")
+    conn.commit()
+
+
+def dados_grafico():
+    c.execute("SELECT nome, media FROM alunos")
+    nomes = []
+    medias = []
+    dados = c.fetchall()
+    for linha in dados:
+        nomes.append(linha[0])
+        medias.append(linha[1])
+
+    plt.bar(nomes, medias)
+    plt.show()
+
+
+def lista_alunos():
+    c.execute("SELECT matricula, nome, nota_1, nota_2, nota_3, nota_4, media FROM alunos")
+    data = (c.fetchall())
+    data2 = DataFrame(data, columns=['Matrícula', 'Aluno', 'Nota 1', 'Nota 2', 'Nota 3', 'Nota 4', 'Média'])
+    print(data2)
+
+
+def media(x, y, z, w):
+    return (x + y + z + w)/4
+
+
+def menu():
+    print('\n **** MENU **** \n\n')
+    print('1 - Cadastrar aluno')
+    print('2 - Mostrar alunos cadastrados')
+    print('3 - Mostrar gráfico da média de notas')
+    print('4 - Excluir todos os cadastros')
+    print('5 - Sair')
+    x = input('\nSelecione uma das opções (1/2/3/4/5): ')
+    return x
+
+
+v = menu()
+r = 'S'
+if v == '1':
+    while r == 'S' or 's':
+        create_table()
+        aluno = input('Digite o nome do Aluno: ')
+        n1 = int(input('Digite a nota da A1: '))
+        n2 = int(input('Digite a nota da A2: '))
+        n3 = int(input('Digite a nota da A3: '))
+        n4 = int(input('Digite a nota da A4: '))
+        media(n1, n2, n3, n4)
+        nmed = media(n1, n2, n3, n4)
+        insert_values()
+        r = input('Adicionar novos dados de aluno? (S/N): \n')
+    v = menu()
+
+if v == '2':
+    lista_alunos()
+    v = menu()
+
+if v == '3':
+    dados_grafico()
+    v = menu()
+
+if v == '4':
+    erase_table()
+    v = menu()
+
+if v == '5':
+    sys.exit()
+
+
+c.close()
+conn.close()
